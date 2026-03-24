@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Анкета</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="page">
+    <main class="card" role="main">
+      <h1>Регистрационная форма</h1>
+      <p class="lead">Заполните поля и нажмите «Сохранить». Все поля обязательны и проверяются на сервере.</p>
+
+      {error_block}
+      {success_block}
+
+      <form method="post" action="/" accept-charset="UTF-8" novalidate>
+        <div class="field">
+          <label class="field__label" for="full_name">ФИО</label>
+          <input type="text" id="full_name" name="full_name" maxlength="150" autocomplete="name"
+            value="{full_name_value}" required />
+          <p class="field__hint">Только буквы и пробелы, не более 150 символов.</p>
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="phone">Телефон</label>
+          <input type="tel" id="phone" name="phone" autocomplete="tel"
+            value="{phone_value}" required />
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="email">E-mail</label>
+          <input type="email" id="email" name="email" autocomplete="email"
+            value="{email_value}" required />
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="birth_date">Дата рождения</label>
+          <input type="date" id="birth_date" name="birth_date"
+            value="{birth_date_value}" required />
+        </div>
+
+        <fieldset class="field" style="border: none; padding: 0; margin: 0 0 1.15rem;">
+          <legend class="field__label">Пол</legend>
+          <div class="inline-group">
+            <label><input type="radio" name="gender" value="male" {gender_male_checked} /> Мужской</label>
+            <label><input type="radio" name="gender" value="female" {gender_female_checked} /> Женский</label>
+            <label><input type="radio" name="gender" value="other" {gender_other_checked} /> Другое</label>
+          </div>
+        </fieldset>
+
+        <div class="field">
+          <span class="field__label" id="lang-legend">Любимый язык программирования</span>
+          <p class="field__hint">Отметьте один или несколько вариантов.</p>
+          <div class="lang-grid" role="group" aria-labelledby="lang-legend">
+            <label><input type="checkbox" name="languages" value="pascal" {chk_pascal} /> Pascal</label>
+            <label><input type="checkbox" name="languages" value="c" {chk_c} /> C</label>
+            <label><input type="checkbox" name="languages" value="cpp" {chk_cpp} /> C++</label>
+            <label><input type="checkbox" name="languages" value="javascript" {chk_javascript} /> JavaScript</label>
+            <label><input type="checkbox" name="languages" value="php" {chk_php} /> PHP</label>
+            <label><input type="checkbox" name="languages" value="python" {chk_python} /> Python</label>
+            <label><input type="checkbox" name="languages" value="java" {chk_java} /> Java</label>
+            <label><input type="checkbox" name="languages" value="haskell" {chk_haskell} /> Haskel</label>
+            <label><input type="checkbox" name="languages" value="clojure" {chk_clojure} /> Clojure</label>
+            <label><input type="checkbox" name="languages" value="prolog" {chk_prolog} /> Prolog</label>
+            <label><input type="checkbox" name="languages" value="scala" {chk_scala} /> Scala</label>
+            <label><input type="checkbox" name="languages" value="go" {chk_go} /> Go</label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="biography">Биография</label>
+          <textarea id="biography" name="biography" maxlength="5000" required>{biography_value}</textarea>
+          <p class="field__hint">До 5000 символов.</p>
+        </div>
+
+        <div class="field">
+          <label>
+            <input type="checkbox" name="contract" value="yes" {contract_checked} />
+            С контрактом ознакомлен(а)
+          </label>
+        </div>
+
+        <div class="actions">
+          <button type="submit">Сохранить</button>
+        </div>
+      </form>
+    </main>
+  </div>
+</body>
+</html>
