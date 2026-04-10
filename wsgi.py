@@ -408,6 +408,8 @@ def _get_db_connection():
         port = int(os.environ.get("MYSQL_PORT", "3306"))
     except ValueError:
         port = 3306
+    # autocommit=True: иначе DELETE в _get_current_user оставляет транзакцию открытой
+    # и следующий start_transaction() (вход, форма) падает с «Transaction already in progress».
     return mysql.connect(
         host=os.environ.get("MYSQL_HOST", "localhost"),
         port=port,
@@ -415,6 +417,7 @@ def _get_db_connection():
         password=os.environ.get("MYSQL_PASSWORD", ""),
         database=os.environ.get("MYSQL_DATABASE", "form_app"),
         charset="utf8mb4",
+        autocommit=True,
     )
 
 
@@ -1115,13 +1118,7 @@ def application(environ: dict, start_response):
                 body = _render_login_page(error_text="Неверный логин или пароль.", csrf_token=guest_csrf, login_value=login)
                 start_response("200 OK", [("Content-Type", "text/html; charset=utf-8")])
                 return [body.encode("utf-8")]
-            conn.start_transaction()
-            try:
-                sid, _ = _create_user_session(conn, int(row["id"]))
-                conn.commit()
-            except Exception:
-                conn.rollback()
-                raise
+            sid, _ = _create_user_session(conn, int(row["id"]))
             start_response(
                 "303 See Other",
                 [
