@@ -91,6 +91,39 @@ def _success_html(text: str = "Данные успешно сохранены.")
     return f'<div class="alert alert--success" role="status">{html.escape(text, quote=False)}</div>'
 
 
+def _nav_html(active: str) -> str:
+    items = (
+        ("home", "/", "Анкета"),
+        ("login", "/login", "Вход"),
+        ("admin", "/admin", "Админка"),
+    )
+    parts: list[str] = []
+    for key, href, label in items:
+        cls = "site-nav__link site-nav__link--active" if key == active else "site-nav__link"
+        parts.append(f'<a class="{cls}" href="{href}">{html.escape(label)}</a>')
+    return f'<nav class="site-nav" aria-label="Разделы сайта">{"".join(parts)}</nav>'
+
+
+def _html_shell(*, title: str, inner: str, wide: bool = False) -> str:
+    page_cls = "page page--wide" if wide else "page"
+    return f"""<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{_h(title)}</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="{page_cls}">
+    <main class="card" role="main">
+{inner}
+    </main>
+  </div>
+</body>
+</html>"""
+
+
 def _render_main(
     *,
     error_block: str = "",
@@ -127,6 +160,7 @@ def _render_main(
         return "true" if name in field_errors else "false"
 
     mapping = {
+        "{nav_block}": _nav_html("home"),
         "{error_block}": error_block,
         "{success_block}": success_block,
         "{credentials_block}": credentials_block,
@@ -174,38 +208,27 @@ def _render_main(
 
 def _render_login_page(*, error_text: str = "", csrf_token: str = "", login_value: str = "") -> str:
     err = f'<div class="alert alert--errors" role="alert">{html.escape(error_text, quote=False)}</div>' if error_text else ""
-    return f"""<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Вход</title>
-  <link rel="stylesheet" href="/static/style.css" />
-</head>
-<body>
-  <div class="page">
-    <main class="card" role="main">
+    inner = f"""
+      {_nav_html("login")}
       <h1>Вход для редактирования заявки</h1>
-      <p class="lead"><a href="/">Вернуться к форме</a></p>
+      <p class="lead">Войдите с логином и паролем, которые выдаются после первой успешной отправки анкеты.</p>
       {err}
       <form method="post" action="/login" accept-charset="UTF-8" novalidate>
         <input type="hidden" name="csrf_token" value="{_h(csrf_token)}" />
         <div class="field">
           <label class="field__label" for="login">Логин</label>
-          <input type="text" id="login" name="login" value="{_h(login_value)}" required />
+          <input type="text" id="login" name="login" value="{_h(login_value)}" autocomplete="username" required />
         </div>
         <div class="field">
           <label class="field__label" for="password">Пароль</label>
-          <input type="password" id="password" name="password" required />
+          <input type="password" id="password" name="password" autocomplete="current-password" required />
         </div>
         <div class="actions">
           <button type="submit">Войти</button>
         </div>
       </form>
-    </main>
-  </div>
-</body>
-</html>"""
+    """
+    return _html_shell(title="Вход", inner=inner, wide=False)
 
 
 def _render_admin_page(*, rows: list[dict[str, Any]], stats: list[dict[str, Any]], csrf_token: str) -> str:
@@ -224,52 +247,47 @@ def _render_admin_page(*, rows: list[dict[str, Any]], stats: list[dict[str, Any]
             f"<td>{_h(str(row['birth_date']))}</td>"
             f"<td>{_h(gender_map.get(row['gender'], row['gender']))}</td>"
             f"<td>{_h(langs)}</td>"
-            f"<td>{html.escape(row['biography'], quote=False)}</td>"
+            f"<td class=\"admin-table__bio\">{html.escape(row['biography'], quote=False)}</td>"
             f"<td>{'Да' if int(row['contract_accepted']) else 'Нет'}</td>"
-            "<td>"
-            f"<a href=\"/admin/edit?id={row_id}\">Редактировать</a>"
-            f"<form method=\"post\" action=\"/admin/delete?id={row_id}\" style=\"margin-top:6px;\">"
+            "<td class=\"admin-table__actions\">"
+            f"<a class=\"text-link\" href=\"/admin/edit?id={row_id}\">Изменить</a>"
+            f"<form class=\"admin-inline-form\" method=\"post\" action=\"/admin/delete?id={row_id}\">"
             f"<input type=\"hidden\" name=\"csrf_token\" value=\"{_h(csrf_token)}\" />"
-            "<button type=\"submit\">Удалить</button>"
+            "<button class=\"btn-danger\" type=\"submit\">Удалить</button>"
             "</form>"
             "</td>"
             "</tr>"
         )
     stats_rows = "".join(
-        f"<li>{_h(str(x['display_name']))}: {int(x['cnt'])}</li>"
+        f"<li><span class=\"stats__name\">{_h(str(x['display_name']))}</span>"
+        f"<span class=\"stats__cnt\">{int(x['cnt'])}</span></li>"
         for x in stats
     )
-    return f"""<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Админ-панель</title>
-  <link rel="stylesheet" href="/static/style.css" />
-</head>
-<body>
-  <div class="page" style="max-width: 1200px;">
-    <main class="card" role="main">
+    inner = f"""
+      {_nav_html("admin")}
       <h1>Админ-панель</h1>
-      <p class="lead">HTTP Basic Auth активна. Здесь можно просматривать, редактировать и удалять заявки.</p>
-      <h3>Статистика по языкам</h3>
-      <ul>{stats_rows}</ul>
-      <div style="overflow:auto;">
-        <table style="width:100%; border-collapse: collapse;">
-          <thead>
-            <tr>
-              <th>ID</th><th>Логин</th><th>ФИО</th><th>Телефон</th><th>Email</th><th>Дата</th><th>Пол</th><th>Языки</th><th>Биография</th><th>Контракт</th><th>Действия</th>
-            </tr>
-          </thead>
-          <tbody>
-            {''.join(table_rows)}
-          </tbody>
-        </table>
-      </div>
-    </main>
-  </div>
-</body>
-</html>"""
+      <p class="lead">Доступ по HTTP Basic Auth (логин и пароль администратора из базы). Ниже — все заявки и статистика по языкам.</p>
+      <section class="section-block" aria-labelledby="stats-heading">
+        <h2 class="section-block__title" id="stats-heading">Статистика: сколько заявок указали язык</h2>
+        <ul class="stats-list">{stats_rows}</ul>
+      </section>
+      <section class="section-block" aria-labelledby="table-heading">
+        <h2 class="section-block__title" id="table-heading">Все заявки</h2>
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>ID</th><th>Логин</th><th>ФИО</th><th>Телефон</th><th>Email</th><th>Дата</th><th>Пол</th><th>Языки</th><th>Биография</th><th>Контракт</th><th>Действия</th>
+              </tr>
+            </thead>
+            <tbody>
+              {''.join(table_rows)}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    """
+    return _html_shell(title="Админ-панель", inner=inner, wide=True)
 
 
 def _render_admin_edit_page(
@@ -283,37 +301,40 @@ def _render_admin_edit_page(
     languages = frozenset(values.get("languages", []))
     checks = {k: (" checked" if k in languages else "") for k in LANGUAGE_CODES}
     err_block = _error_html(list(field_errors.values()))
-    return f"""<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Редактирование заявки #{sub_id}</title>
-  <link rel="stylesheet" href="/static/style.css" />
-</head>
-<body>
-  <div class="page">
-    <main class="card" role="main">
+    inner = f"""
+      {_nav_html("admin")}
       <h1>Редактирование заявки #{sub_id}</h1>
-      <p class="lead"><a href="/admin">Назад в админ-панель</a></p>
+      <p class="lead"><a class="text-link" href="/admin">← К списку заявок</a></p>
       {err_block}
       <form method="post" action="/admin/edit?id={sub_id}" accept-charset="UTF-8" novalidate>
         <input type="hidden" name="csrf_token" value="{_h(csrf_token)}" />
-        <div class="field"><label class="field__label">ФИО</label><input type="text" name="full_name" value="{_h(values.get('full_name', ''))}" /></div>
-        <div class="field"><label class="field__label">Телефон</label><input type="text" name="phone" value="{_h(values.get('phone', ''))}" /></div>
-        <div class="field"><label class="field__label">E-mail</label><input type="text" name="email" value="{_h(values.get('email', ''))}" /></div>
-        <div class="field"><label class="field__label">Дата рождения</label><input type="date" name="birth_date" value="{_h(values.get('birth_date_raw', ''))}" /></div>
-        <fieldset class="field" style="border: none; padding: 0; margin: 0 0 1.15rem;">
+        <div class="field">
+          <label class="field__label" for="adm_full_name">ФИО</label>
+          <input type="text" id="adm_full_name" name="full_name" value="{_h(values.get('full_name', ''))}" />
+        </div>
+        <div class="field">
+          <label class="field__label" for="adm_phone">Телефон</label>
+          <input type="text" id="adm_phone" name="phone" value="{_h(values.get('phone', ''))}" />
+        </div>
+        <div class="field">
+          <label class="field__label" for="adm_email">E-mail</label>
+          <input type="text" id="adm_email" name="email" value="{_h(values.get('email', ''))}" />
+        </div>
+        <div class="field">
+          <label class="field__label" for="adm_birth">Дата рождения</label>
+          <input type="date" id="adm_birth" name="birth_date" value="{_h(values.get('birth_date_raw', ''))}" />
+        </div>
+        <fieldset class="field field--plain">
           <legend class="field__label">Пол</legend>
           <div class="inline-group">
-            <label><input type="radio" name="gender" value="male" {' checked' if values.get('gender') == 'male' else ''}/> Мужской</label>
-            <label><input type="radio" name="gender" value="female" {' checked' if values.get('gender') == 'female' else ''}/> Женский</label>
-            <label><input type="radio" name="gender" value="other" {' checked' if values.get('gender') == 'other' else ''}/> Другое</label>
+            <label><input type="radio" name="gender" value="male"{' checked' if values.get('gender') == 'male' else ''}/> Мужской</label>
+            <label><input type="radio" name="gender" value="female"{' checked' if values.get('gender') == 'female' else ''}/> Женский</label>
+            <label><input type="radio" name="gender" value="other"{' checked' if values.get('gender') == 'other' else ''}/> Другое</label>
           </div>
         </fieldset>
         <div class="field">
-          <span class="field__label">Языки программирования</span>
-          <div class="lang-grid">
+          <span class="field__label" id="adm-lang">Языки программирования</span>
+          <div class="lang-grid" role="group" aria-labelledby="adm-lang">
             <label><input type="checkbox" name="languages" value="pascal"{checks['pascal']} /> Pascal</label>
             <label><input type="checkbox" name="languages" value="c"{checks['c']} /> C</label>
             <label><input type="checkbox" name="languages" value="cpp"{checks['cpp']} /> C++</label>
@@ -328,14 +349,19 @@ def _render_admin_edit_page(
             <label><input type="checkbox" name="languages" value="go"{checks['go']} /> Go</label>
           </div>
         </div>
-        <div class="field"><label class="field__label">Биография</label><textarea name="biography">{html.escape(values.get('biography', ''), quote=False)}</textarea></div>
-        <div class="field"><label><input type="checkbox" name="contract" value="yes"{' checked' if values.get('contract_accepted') else ''}/> С контрактом ознакомлен(а)</label></div>
-        <div class="actions"><button type="submit">Сохранить изменения</button></div>
+        <div class="field">
+          <label class="field__label" for="adm_bio">Биография</label>
+          <textarea id="adm_bio" name="biography">{html.escape(values.get('biography', ''), quote=False)}</textarea>
+        </div>
+        <div class="field field--contract">
+          <label><input type="checkbox" name="contract" value="yes"{' checked' if values.get('contract_accepted') else ''}/> С контрактом ознакомлен(а)</label>
+        </div>
+        <div class="actions">
+          <button type="submit">Сохранить изменения</button>
+        </div>
       </form>
-    </main>
-  </div>
-</body>
-</html>"""
+    """
+    return _html_shell(title=f"Заявка #{sub_id}", inner=inner, wide=False)
 
 
 def _first(params: dict[str, list[str]], key: str, default: str = "") -> str:
@@ -812,13 +838,17 @@ def _csrf_valid(posted: str, cookie_value: str) -> bool:
 def _auth_block_for_user(is_auth: bool, login: str, csrf_token: str) -> str:
     if is_auth:
         return (
-            '<div class="alert alert--success">'
-            f'Вы авторизованы как <strong>{_h(login)}</strong>. Можно редактировать отправленные данные.'
-            '<form method="post" action="/logout" style="margin-top:8px;">'
+            '<div class="alert alert--success auth-banner">'
+            f'<p class="auth-banner__text">Вы вошли как <strong>{_h(login)}</strong>. Можно менять свою заявку ниже.</p>'
+            '<form class="auth-banner__form" method="post" action="/logout">'
             f'<input type="hidden" name="csrf_token" value="{_h(csrf_token)}" />'
-            '<button type="submit">Выйти</button></form></div>'
+            '<button type="submit" class="btn-secondary">Выйти</button></form></div>'
         )
-    return '<div class="alert"><a href="/login">Войти с ранее выданным логином и паролем</a></div>'
+    return (
+        '<div class="alert auth-banner auth-banner--guest">'
+        '<a class="text-link" href="/login">Вход по логину и паролю из письма после отправки анкеты</a>'
+        "</div>"
+    )
 
 
 def _credentials_block_from_cookie(cookies: dict[str, str]) -> tuple[str, list[tuple[str, str]]]:

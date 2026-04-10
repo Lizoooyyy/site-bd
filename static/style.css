@@ -34,6 +34,10 @@ body {
   padding: 2.5rem 1.25rem 3rem;
 }
 
+.page--wide {
+  max-width: 1100px;
+}
+
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -53,6 +57,141 @@ h1 {
   margin: 0 0 1.75rem;
   color: var(--muted);
   font-size: 0.95rem;
+}
+
+.site-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1rem;
+  align-items: center;
+  margin: 0 0 1.35rem;
+  padding-bottom: 1.1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.site-nav__link {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-decoration: none;
+  padding: 0.35rem 0.2rem;
+  border-radius: 6px;
+}
+
+.site-nav__link:hover {
+  color: var(--accent-hover);
+}
+
+.site-nav__link--active {
+  color: var(--accent);
+  box-shadow: 0 1px 0 rgba(76, 158, 217, 0.65);
+}
+
+.text-link {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.text-link:hover {
+  color: var(--accent-hover);
+  text-decoration: underline;
+}
+
+.section-block {
+  margin-bottom: 1.75rem;
+}
+
+.section-block__title {
+  margin: 0 0 0.75rem;
+  font-size: 1.05rem;
+  font-weight: 650;
+  color: #c5d3e5;
+}
+
+.stats-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.45rem;
+  max-width: 520px;
+}
+
+.stats-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.45rem 0.65rem;
+  border-radius: 8px;
+  background: rgba(18, 26, 38, 0.65);
+  border: 1px solid var(--border);
+  font-size: 0.88rem;
+}
+
+.stats__cnt {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.table-wrap {
+  overflow: auto;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(18, 26, 38, 0.45);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 920px;
+}
+
+.admin-table thead th {
+  position: sticky;
+  top: 0;
+  background: #141d2a;
+  color: #c5d3e5;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  z-index: 1;
+}
+
+.admin-table__bio {
+  max-width: 220px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.admin-table__actions {
+  white-space: nowrap;
+}
+
+.admin-inline-form {
+  margin-top: 0.5rem;
+}
+
+.auth-banner__text {
+  margin: 0 0 0.65rem;
+}
+
+.auth-banner__form {
+  margin: 0;
+}
+
+.field--plain {
+  border: none;
+  padding: 0;
+  margin: 0 0 1.15rem;
+}
+
+.field--contract label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-weight: 500;
 }
 
 .alert {
@@ -125,6 +264,7 @@ h1 {
 input[type="text"],
 input[type="tel"],
 input[type="email"],
+input[type="password"],
 input[type="date"],
 textarea,
 select {
@@ -215,6 +355,40 @@ button[type="submit"] {
 
 button[type="submit"]:hover {
   background: linear-gradient(180deg, var(--accent-hover) 0%, #4c9ed9 100%);
+}
+
+.btn-secondary {
+  appearance: none;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.55rem 1.1rem;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  background: #121a26;
+  color: var(--text);
+}
+
+.btn-secondary:hover {
+  border-color: var(--accent);
+  color: var(--accent-hover);
+}
+
+.btn-danger {
+  appearance: none;
+  border: 1px solid rgba(232, 93, 93, 0.55);
+  border-radius: 8px;
+  padding: 0.38rem 0.65rem;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: rgba(232, 93, 93, 0.12);
+  color: #fecaca;
+}
+
+.btn-danger:hover {
+  background: rgba(232, 93, 93, 0.22);
 }
 
 .sr-only {
