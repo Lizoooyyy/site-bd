@@ -12,47 +12,60 @@
       <h1>Регистрационная форма</h1>
       <p class="lead">Заполните поля и нажмите «Сохранить». Все поля обязательны и проверяются на сервере.</p>
 
+      {auth_block}
+      {credentials_block}
       {error_block}
       {success_block}
 
       <form method="post" action="/" accept-charset="UTF-8" novalidate>
+        <input type="hidden" name="csrf_token" value="{csrf_token_value}" />
         <div class="field">
           <label class="field__label" for="full_name">ФИО</label>
           <input type="text" id="full_name" name="full_name" maxlength="150" autocomplete="name"
+            class="{full_name_invalid_class}" aria-invalid="{full_name_aria_invalid}"
             value="{full_name_value}" required />
+          <p class="field__error">{full_name_error}</p>
           <p class="field__hint">Только буквы и пробелы, не более 150 символов.</p>
         </div>
 
         <div class="field">
           <label class="field__label" for="phone">Телефон</label>
           <input type="tel" id="phone" name="phone" autocomplete="tel"
+            class="{phone_invalid_class}" aria-invalid="{phone_aria_invalid}"
             value="{phone_value}" required />
+          <p class="field__error">{phone_error}</p>
         </div>
 
         <div class="field">
           <label class="field__label" for="email">E-mail</label>
           <input type="email" id="email" name="email" autocomplete="email"
+            class="{email_invalid_class}" aria-invalid="{email_aria_invalid}"
             value="{email_value}" required />
+          <p class="field__error">{email_error}</p>
         </div>
 
         <div class="field">
           <label class="field__label" for="birth_date">Дата рождения</label>
           <input type="date" id="birth_date" name="birth_date"
+            class="{birth_date_invalid_class}" aria-invalid="{birth_date_aria_invalid}"
             value="{birth_date_value}" required />
+          <p class="field__error">{birth_date_error}</p>
         </div>
 
-        <fieldset class="field" style="border: none; padding: 0; margin: 0 0 1.15rem;">
+        <fieldset class="field {gender_invalid_class}" style="border: none; padding: 0; margin: 0 0 1.15rem;">
           <legend class="field__label">Пол</legend>
           <div class="inline-group">
             <label><input type="radio" name="gender" value="male" {gender_male_checked} /> Мужской</label>
             <label><input type="radio" name="gender" value="female" {gender_female_checked} /> Женский</label>
             <label><input type="radio" name="gender" value="other" {gender_other_checked} /> Другое</label>
           </div>
+          <p class="field__error">{gender_error}</p>
         </fieldset>
 
-        <div class="field">
+        <div class="field {languages_invalid_class}">
           <span class="field__label" id="lang-legend">Любимый язык программирования</span>
           <p class="field__hint">Отметьте один или несколько вариантов.</p>
+          <p class="field__error">{languages_error}</p>
           <div class="lang-grid" role="group" aria-labelledby="lang-legend">
             <label><input type="checkbox" name="languages" value="pascal" {chk_pascal} /> Pascal</label>
             <label><input type="checkbox" name="languages" value="c" {chk_c} /> C</label>
@@ -71,19 +84,23 @@
 
         <div class="field">
           <label class="field__label" for="biography">Биография</label>
-          <textarea id="biography" name="biography" maxlength="5000" required>{biography_value}</textarea>
+          <textarea id="biography" name="biography" maxlength="5000"
+            class="{biography_invalid_class}" aria-invalid="{biography_aria_invalid}"
+            required>{biography_value}</textarea>
+          <p class="field__error">{biography_error}</p>
           <p class="field__hint">До 5000 символов.</p>
         </div>
 
-        <div class="field">
+        <div class="field {contract_invalid_class}">
           <label>
             <input type="checkbox" name="contract" value="yes" {contract_checked} />
             С контрактом ознакомлен(а)
           </label>
+          <p class="field__error">{contract_error}</p>
         </div>
 
         <div class="actions">
-          <button type="submit">Сохранить</button>
+          <button type="submit">{submit_caption}</button>
         </div>
       </form>
     </main>

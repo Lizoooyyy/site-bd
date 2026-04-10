@@ -60,6 +60,8 @@ h1 {
   padding: 0.9rem 1rem;
   margin-bottom: 1.35rem;
   font-size: 0.92rem;
+  background: rgba(139, 156, 179, 0.12);
+  border: 1px solid rgba(139, 156, 179, 0.35);
 }
 
 .alert--errors {
@@ -95,6 +97,29 @@ h1 {
   font-size: 0.8rem;
   color: var(--muted);
   margin-top: 0.35rem;
+}
+
+.field__error {
+  margin: 0.45rem 0 0;
+  font-size: 0.82rem;
+  color: #fecaca;
+}
+
+.field__error:empty {
+  display: none;
+}
+
+.is-invalid {
+  border-color: rgba(232, 93, 93, 0.75) !important;
+  outline: 2px solid rgba(232, 93, 93, 0.22);
+  outline-offset: 1px;
+}
+
+.field.is-invalid {
+  padding: 0.85rem 0.85rem 0.75rem;
+  border-radius: 10px;
+  border: 1px solid rgba(232, 93, 93, 0.35);
+  background: rgba(232, 93, 93, 0.06);
 }
 
 input[type="text"],
@@ -164,6 +189,15 @@ select[multiple] {
   display: flex;
   gap: 0.75rem;
   flex-wrap: wrap;
+}
+
+table th,
+table td {
+  border: 1px solid var(--border);
+  padding: 0.45rem 0.5rem;
+  vertical-align: top;
+  text-align: left;
+  font-size: 0.85rem;
 }
 
 button[type="submit"] {
