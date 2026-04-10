@@ -21,9 +21,16 @@ def main() -> None:
                 k, v = k.strip(), v.strip().strip('"').strip("'")
                 if k and k not in os.environ:
                     os.environ[k] = v
-    port = int(os.environ.get("PORT", "8000"))
-    srv = make_server("127.0.0.1", port, application)
-    print(f"http://127.0.0.1:{port}/")
+    host = os.environ.get("BIND_HOST", "127.0.0.1").strip() or "127.0.0.1"
+    try:
+        port = int(os.environ.get("PORT", "8000"))
+    except ValueError:
+        port = 8000
+    srv = make_server(host, port, application)
+    if host in ("0.0.0.0", "::"):
+        print(f"Listening on http://0.0.0.0:{port}/ (from the internet: http://<server-ip>:{port}/)")
+    else:
+        print(f"http://{host}:{port}/")
     srv.serve_forever()
 
 
